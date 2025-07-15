@@ -2,7 +2,8 @@ import express, { Express } from "express";
 import { routes } from "./routes/routeIndex";
 import { logger } from "./utils/logger";
 import bodyParser from "body-parser";
-import "dotenv/config";
+import { config } from "./config";
+import mongoose from "mongoose";
 
 const app: Express = express();
 
@@ -12,7 +13,29 @@ app.use(bodyParser.json());
 // dynamic routes
 routes(app);
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  logger.info(`Server running on port: http://localhost:${PORT}`);
-});
+const PORT = config.serverPort.port;
+
+(async function startUp() {
+  try {
+    await mongoose.connect(config.mongoDB.url, {
+      retryWrites: true,
+      authMechanism: "DEFAULT"
+    });
+
+    logger.info("Connected to MongoDB");
+
+    app.get("/health", (req, res) => {
+      res.status(200).json({ message: "OK" });
+    });
+
+    app.listen(PORT, () => {
+      logger.info(`Server running on port: http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    logger.error(`Error connecting to MongoDB: ${error}`);
+  }
+})();
+
+// app.listen(PORT, () => {
+//   logger.info(`Server running on port: http://localhost:${PORT}`);
+// });
