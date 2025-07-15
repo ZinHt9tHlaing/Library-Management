@@ -1,0 +1,29 @@
+import { Request, Response } from "express";
+import { IUser } from "../../types/user-type";
+import { logger } from "../../utils/logger";
+import { findUserByEmail, register } from "../../services/user-service";
+
+export const handleRegister = async (req: Request, res: Response) => {
+  const user: IUser = req.body;
+
+  try {
+    const existingUser = await findUserByEmail(user.email);
+
+    if (existingUser) {
+      logger.error("User already exists");
+      res.status(400).json({ isSuccess: false, message: "User already exists" });
+    }
+
+    const registeredUser = await register(user);
+
+    // remove password from the response
+    const { password, ...userWithoutPassword } = registeredUser.toObject();
+
+    logger.info("Success add new user");
+    res.status(201).send({ isSuccess: true, message: "Success register user", user: userWithoutPassword });
+  } catch (error) {
+    const err = error as Error;
+    logger.error(err.message);
+    res.status(500).json({ message: "Unable to register user at this time", error: err.message });
+  }
+};

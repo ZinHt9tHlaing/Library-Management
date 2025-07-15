@@ -17,7 +17,7 @@ const PORT = config.serverPort.port;
 
 (async function startUp() {
   try {
-    await mongoose.connect(config.mongoDB.url, {
+    await mongoose.connect(config.mongoDB.url!, {
       retryWrites: true,
       authMechanism: "DEFAULT"
     });
@@ -35,7 +35,3 @@ const PORT = config.serverPort.port;
     logger.error(`Error connecting to MongoDB: ${error}`);
   }
 })();
-
-// app.listen(PORT, () => {
-//   logger.info(`Server running on port: http://localhost:${PORT}`);
-// });
