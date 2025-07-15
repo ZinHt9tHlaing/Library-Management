@@ -24,6 +24,10 @@ export const Schemas = {
       latName: Joi.string().required(),
       email: Joi.string().required(),
       password: Joi.string().min(4).required()
+    }),
+    login: Joi.object<{ email: string; password: string }>({
+      email: Joi.string().required(),
+      password: Joi.string().min(4).required()
     })
   }
 };
