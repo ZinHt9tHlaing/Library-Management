@@ -4,11 +4,13 @@ import { logger } from "./utils/logger";
 import bodyParser from "body-parser";
 import { config } from "./config";
 import mongoose from "mongoose";
+import cors from "cors";
 
 const app: Express = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 // dynamic routes
 routes(app);
