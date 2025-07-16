@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
 import HomePage from "./pages/HomePage";
-import { IUser } from "./types/UserType";
 import { Bounce, ToastContainer } from "react-toastify";
+import { RootState } from "./store/store";
+import { useSelector } from "react-redux";
 
 const App = () => {
-  const [displayLogin, setDisplayLogin] = useState<boolean>(true);
-  const [loggedInUser, setLoggedInUser] = useState<IUser>();
-
-  const updateLoggedInUser = (user: IUser) => {
-    setLoggedInUser(user);
-  };
+  const { loggedInUser } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     console.log("loggedInUser", loggedInUser);
@@ -35,10 +31,7 @@ const App = () => {
         transition={Bounce}
       />
 
-      <HomePage
-        displayLogin={displayLogin}
-        updateLoggedInUser={updateLoggedInUser}
-      />
+      <HomePage />
     </div>
   );
 };

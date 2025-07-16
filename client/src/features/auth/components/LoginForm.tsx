@@ -14,17 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import z from "zod";
-import axios from "axios";
 import { useState } from "react";
-import { IUser } from "@/types/UserType";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { loginUser } from "@/store/slice/auth/authSlice";
 
 type FormInputData = z.infer<typeof loginSchema>;
 
-interface LoginFormProps {
-  updateLoggedInUser: (user: IUser) => void;
-}
-
-const LoginForm = ({ updateLoggedInUser }: LoginFormProps) => {
+const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FormInputData>({
@@ -35,18 +32,12 @@ const LoginForm = ({ updateLoggedInUser }: LoginFormProps) => {
     },
   });
 
-  const onSubmit = async (values: FormInputData) => {
-    try {
-      const response = await axios.post(`http://localhost:8000/auth/login`, {
-        email: values.email,
-        password: values.password,
-      });
+  // Get auth state
+  const { loading } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
 
-      console.log("response", response.data.user);
-      updateLoggedInUser(response.data.user);
-    } catch (error) {
-      console.log(error);
-    }
+  const onSubmit = async (values: FormInputData) => {
+    dispatch(loginUser(values));
   };
 
   return (
@@ -69,10 +60,7 @@ const LoginForm = ({ updateLoggedInUser }: LoginFormProps) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="example@gmail.com"
-                      {...field}
-                    />
+                    <Input placeholder="example@gmail.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,11 +103,11 @@ const LoginForm = ({ updateLoggedInUser }: LoginFormProps) => {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
+              disabled={loading}
+              className="flex justify-center items-center gap-2 w-full disabled:cursor-not-allowed disabled:bg-gray-700 cursor-pointer font-bold py-2 border-2 active:scale-95 duration-200"
             >
-              {form.formState.isSubmitting && (
-                <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              {loading && (
+                <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               )}
               Login
             </Button>
